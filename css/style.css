@@ -107,80 +107,106 @@ html, body {
   color: var(--accent);
 }
 
-/* === CALENDAR STRIP === */
-.calendar-strip {
+/* === HOME HEADER (месяц + Сегодня) === */
+.home-header {
   display: flex;
-  gap: 4px;
-  padding: 12px 0;
-  overflow-x: auto;
-  scrollbar-width: none;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 12px;
 }
-.calendar-strip::-webkit-scrollbar { display: none; }
 
-.cal-day {
-  flex: 0 0 auto;
-  width: 44px;
-  text-align: center;
-  padding: 8px 0;
-  border-radius: 12px;
+.home-header-title {
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+}
+
+.home-header-today {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text-secondary);
   cursor: pointer;
-  transition: background 0.2s;
+  -webkit-tap-highlight-color: transparent;
 }
 
-.cal-day .weekday {
-  font-size: 11px;
+.home-header-today:active {
+  opacity: 0.6;
+}
+
+/* === CALENDAR WEEKDAYS HEADER === */
+.calendar-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  text-align: center;
+  padding: 0 0 4px;
+}
+
+.calendar-weekday {
+  font-size: 12px;
+  font-weight: 600;
   color: var(--text-secondary);
   text-transform: uppercase;
-  font-weight: 600;
 }
 
-.cal-day .date {
+/* === CALENDAR WEEK (дни) === */
+.calendar-week {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  text-align: center;
+  padding: 8px 0 12px;
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.cal-day-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 0;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.cal-date {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
   font-size: 18px;
   font-weight: 600;
-  margin-top: 4px;
+  transition: background 0.15s;
 }
 
-.cal-day.today .date {
-  color: var(--accent);
+.cal-day-cell.today .cal-date {
+  color: var(--accent-red);
 }
 
-.cal-day.selected {
-  background: var(--accent);
-}
-
-.cal-day.selected .weekday,
-.cal-day.selected .date {
+.cal-day-cell.selected .cal-date {
+  background: var(--text);
   color: #000;
 }
 
-.cal-day.has-workout::after {
+.cal-day-cell.today.selected .cal-date {
+  background: var(--accent-red);
+  color: #fff;
+}
+
+.cal-day-cell.has-workout::after {
   content: '';
   display: block;
   width: 5px;
   height: 5px;
   border-radius: 50%;
   background: var(--accent);
-  margin: 4px auto 0;
+  margin-top: 3px;
 }
 
-.cal-day.selected.has-workout::after {
-  background: #000;
-}
-
-.cal-month-sep {
-  flex: 0 0 auto;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--accent);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  padding: 0 4px;
-  writing-mode: vertical-lr;
-  text-orientation: mixed;
-  min-height: 48px;
+.cal-day-cell.selected.has-workout::after {
+  background: var(--accent);
 }
 
 /* === CARDS === */
