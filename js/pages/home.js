@@ -21,45 +21,53 @@ export async function renderHome(content, header) {
 async function renderCalendar(container) {
   const dates = await workoutsDB.getDates();
   const dateSet = new Set(dates);
-  
+
   const strip = document.createElement('div');
   strip.className = 'calendar-strip';
 
   const today = new Date();
-  // Показываем 2 недели: неделю назад и неделю вперёд
-  for (let i = -7; i <= 7; i++) {
+  const days = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'];
+  const months = ['Янв', 'Фев', 'Мар', 'Апр', 'Мая', 'Июн', 'Июл', 'Авг', 'Сен', 'Окт', 'Ноя', 'Дек'];
+
+  // 90 дней назад — 30 дней вперёд (длинная лента)
+  let lastMonth = -1;
+  for (let i = -90; i <= 30; i++) {
     const d = new Date(today);
     d.setDate(today.getDate() + i);
     const dateStr = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
-    
-    const days = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'];
-    
+
+    // Разделитель месяца
+    if (d.getMonth() !== lastMonth) {
+      lastMonth = d.getMonth();
+      const sep = document.createElement('div');
+      sep.className = 'cal-month-sep';
+      sep.textContent = months[d.getMonth()];
+      strip.appendChild(sep);
+    }
+
     const el = document.createElement('div');
     el.className = 'cal-day';
     if (dateStr === todayStr()) el.classList.add('today');
     if (dateStr === selectedDate) el.classList.add('selected');
     if (dateSet.has(dateStr)) el.classList.add('has-workout');
-    
+
     el.innerHTML = `
       <div class="weekday">${days[d.getDay()]}</div>
       <div class="date">${d.getDate()}</div>
     `;
-    
+
     el.onclick = () => {
       selectedDate = dateStr;
-      // Обновить header
       document.querySelector('.header-subtitle').textContent = formatDate(dateStr);
-      // Обновить выделение
       strip.querySelectorAll('.cal-day').forEach(c => c.classList.remove('selected'));
       el.classList.add('selected');
-      // Перерисовать контент дня
       const dayContent = document.getElementById('day-content');
       if (dayContent) {
         dayContent.innerHTML = '';
         renderDayContentInner(dayContent);
       }
     };
-    
+
     strip.appendChild(el);
   }
 

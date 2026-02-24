@@ -235,6 +235,44 @@ export const workoutsDB = {
   }
 };
 
+// === Export / Import ===
+export async function exportAllData() {
+  const [exercises, programs, workouts] = await Promise.all([
+    getAll('exercises'),
+    getAll('programs'),
+    getAll('workouts'),
+  ]);
+  return { version: 1, exportedAt: new Date().toISOString(), exercises, programs, workouts };
+}
+
+export async function importAllData(data) {
+  if (!data || data.version !== 1) throw new Error('Неверный формат файла');
+  const db = await openDB();
+
+  // Очищаем все хранилища
+  for (const storeName of ['exercises', 'programs', 'workouts']) {
+    await new Promise((resolve, reject) => {
+      const tx = db.transaction(storeName, 'readwrite');
+      tx.objectStore(storeName).clear();
+      tx.oncomplete = resolve;
+      tx.onerror = () => reject(tx.error);
+    });
+  }
+
+  // Заполняем данными из файла
+  for (const storeName of ['exercises', 'programs', 'workouts']) {
+    const items = data[storeName] || [];
+    if (items.length === 0) continue;
+    await new Promise((resolve, reject) => {
+      const tx = db.transaction(storeName, 'readwrite');
+      const store = tx.objectStore(storeName);
+      for (const item of items) store.put(item);
+      tx.oncomplete = resolve;
+      tx.onerror = () => reject(tx.error);
+    });
+  }
+}
+
 // Инициализация БД
 export function initDB() {
   return openDB();

@@ -1,6 +1,6 @@
 // Страница «История» — журнал тренировок
 
-import { workoutsDB, MUSCLE_GROUPS } from '../db.js';
+import { workoutsDB, MUSCLE_GROUPS, exportAllData, importAllData } from '../db.js';
 import { navigate, formatDate, showModal, closeModal, showToast } from '../app.js';
 
 export async function renderHistory(content, header) {
@@ -15,7 +15,26 @@ export async function renderHistory(content, header) {
         <div class="title">Нет тренировок</div>
         <div class="subtitle">Начни тренироваться — история появится здесь</div>
       </div>
+      <div style="padding:0 16px">
+        <button class="btn btn-secondary" id="import-btn-empty">📥 Импорт данных</button>
+        <input type="file" id="import-file-empty" accept=".json" style="display:none">
+      </div>
     `;
+    const importFile = content.querySelector('#import-file-empty');
+    content.querySelector('#import-btn-empty').onclick = () => importFile.click();
+    importFile.onchange = async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      try {
+        const text = await file.text();
+        const data = JSON.parse(text);
+        await importAllData(data);
+        showToast('Данные восстановлены');
+        navigate('history');
+      } catch (err) {
+        showToast('Ошибка: ' + err.message);
+      }
+    };
     return;
   }
 
@@ -83,6 +102,46 @@ export async function renderHistory(content, header) {
     item.onclick = () => showWorkoutDetail(w);
     list.appendChild(item);
   }
+
+  // Кнопки экспорта/импорта
+  const dataSection = document.createElement('div');
+  dataSection.style.cssText = 'margin-top:24px;padding-top:20px;border-top:1px solid var(--border)';
+  dataSection.innerHTML = `
+    <div style="font-size:13px;font-weight:600;color:var(--text-secondary);text-transform:uppercase;margin-bottom:12px">Данные</div>
+    <button class="btn btn-secondary mb-8" id="export-btn">📤 Экспорт данных</button>
+    <button class="btn btn-secondary" id="import-btn">📥 Импорт данных</button>
+    <input type="file" id="import-file" accept=".json" style="display:none">
+  `;
+  content.appendChild(dataSection);
+
+  dataSection.querySelector('#export-btn').onclick = async () => {
+    const data = await exportAllData();
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `gym-tracker-backup-${new Date().toISOString().slice(0,10)}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast('Бэкап сохранён');
+  };
+
+  const importFile = dataSection.querySelector('#import-file');
+  dataSection.querySelector('#import-btn').onclick = () => importFile.click();
+  importFile.onchange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    try {
+      const text = await file.text();
+      const data = JSON.parse(text);
+      await importAllData(data);
+      showToast('Данные восстановлены');
+      navigate('history');
+    } catch (err) {
+      showToast('Ошибка: ' + err.message);
+    }
+    importFile.value = '';
+  };
 }
 
 // Детали тренировки
