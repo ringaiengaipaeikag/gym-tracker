@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <rect width="512" height="512" rx="96" fill="#000"/>
+  <g transform="translate(256,256)">
+    <!-- гантель -->
+    <rect x="-120" y="-12" width="240" height="24" rx="12" fill="#ff9500"/>
+    <!-- левый диск -->
+    <rect x="-150" y="-50" width="36" height="100" rx="8" fill="#ff9500"/>
+    <rect x="-170" y="-65" width="28" height="130" rx="6" fill="#ff9500" opacity="0.7"/>
+    <!-- правый диск -->
+    <rect x="114" y="-50" width="36" height="100" rx="8" fill="#ff9500"/>
+    <rect x="142" y="-65" width="28" height="130" rx="6" fill="#ff9500" opacity="0.7"/>
+  </g>
+</svg>
